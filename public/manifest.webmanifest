@@ -2,8 +2,8 @@
   "name": "Meeting Summarizer",
   "short_name": "MeetingSum",
   "description": "Offline meeting transcription and summarization with Whisper AI",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#1f2937",
@@ -92,7 +92,7 @@
       "name": "Start Recording",
       "short_name": "Record",
       "description": "Start a new meeting recording",
-      "url": "/?action=record",
+      "url": "?action=record",
       "icons": [
         {
           "src": "icons/record-shortcut.png",
@@ -105,7 +105,7 @@
       "name": "View Transcripts",
       "short_name": "Transcripts",
       "description": "View saved transcripts",
-      "url": "/?action=transcripts",
+      "url": "?action=transcripts",
       "icons": [
         {
           "src": "icons/transcripts-shortcut.png",
