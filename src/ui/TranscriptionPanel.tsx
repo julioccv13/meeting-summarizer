@@ -37,8 +37,15 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
   // Segments for live preview
   const [currentSegments, setCurrentSegments] = useState<Segment[]>([])
 
-  // Load imported items
+  // Load defaults and imported items
   useEffect(() => {
+    // load default model from settings
+    try {
+      const saved = localStorage.getItem('defaultModel')
+      if (saved && AVAILABLE_MODELS[saved]) {
+        setSelectedModel(saved)
+      }
+    } catch {}
     loadImportedItems()
   }, [])
 
