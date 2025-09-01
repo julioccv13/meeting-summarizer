@@ -10,6 +10,7 @@ import { SummaryHistory } from './ui/SummaryHistory'
 import { showA2HSHintIfNeeded } from './pwa/a2hsHint'
 import { showInstallPrompt, subscribeToInstallState, getInstallState } from './pwa/installPrompt'
 import { initWhisper, getWhisperAPI, type Segment } from './whisper/api'
+import { detectAvailableModels } from './whisper/loader'
 import { summarize, summarizeLongText, type SummarizationOptions, type SummaryResult } from './nlp/textrank'
 import { saveTranscript } from './store/transcripts'
 import { saveSummary } from './store/summaries'
@@ -90,7 +91,16 @@ export default function App() {
             <RecorderPanel onResult={async (r) => {
               // Auto pipeline: init -> transcribe -> save -> summarize
               setProcessing({active:true, message:'Initializing model…', progress: 0.05})
-              const model = localStorage.getItem('defaultModel') || 'tiny'
+              let model = localStorage.getItem('defaultModel') || ''
+              try {
+                const keys = await detectAvailableModels()
+                if (!model || !keys.includes(model)) {
+                  model = keys.includes('base.q5_1') ? 'base.q5_1' : (keys[0] || 'base.q5_1')
+                  localStorage.setItem('defaultModel', model)
+                }
+              } catch {
+                model = model || 'base.q5_1'
+              }
               try {
                 await initWhisper(model, (p)=> setProcessing({active:true, message:p.message, progress: Math.min(0.5, (p.progress ?? 0) * 0.5)}))
                 setProcessing({active:true, message:'Transcribing…', progress: 0.5})

@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from 'react'
-import { AVAILABLE_MODELS, getCachedModelsSize, clearAllCachedModels } from '../whisper/loader'
+import { AVAILABLE_MODELS, detectAvailableModels, getCachedModelsSize, clearAllCachedModels } from '../whisper/loader'
 
 export default function SettingsPanel() {
-  const [defaultModel, setDefaultModel] = useState<string>('tiny')
+  const [defaultModel, setDefaultModel] = useState<string>('base.q5_1')
   const [modelBytes, setModelBytes] = useState<number>(0)
   const [busy, setBusy] = useState<boolean>(false)
   const [summaryMaxSentences, setSummaryMaxSentences] = useState<number>(5)
   const [summaryMaxChars, setSummaryMaxChars] = useState<number>(2000)
   const [summaryDedup, setSummaryDedup] = useState<boolean>(true)
+  const [availableKeys, setAvailableKeys] = useState<string[]>([])
 
   useEffect(() => {
     const saved = localStorage.getItem('defaultModel')
-    if (saved && AVAILABLE_MODELS[saved]) setDefaultModel(saved)
+    // detect which models actually exist
+    detectAvailableModels().then((keys) => {
+      setAvailableKeys(keys)
+      if (saved && keys.includes(saved)) {
+        setDefaultModel(saved)
+      } else if (keys.includes('base.q5_1')) {
+        setDefaultModel('base.q5_1')
+        localStorage.setItem('defaultModel', 'base.q5_1')
+      } else if (keys.length > 0) {
+        setDefaultModel(keys[0])
+        localStorage.setItem('defaultModel', keys[0])
+      }
+    }).catch(()=>{})
     try {
       const s = localStorage.getItem('summaryOptions')
       if (s) {
@@ -88,12 +101,18 @@ export default function SettingsPanel() {
       <div className="row">
         <div className="col">
           <label>Default Model</label>
-          <select value={defaultModel} onChange={(e)=>setDefaultModel(e.target.value)}>
-            {Object.keys(AVAILABLE_MODELS).map(k => (
-              <option key={k} value={k}>{k}</option>
-            ))}
-          </select>
-          <button onClick={handleSaveDefaultModel} style={{ marginLeft: 8 }}>Save</button>
+          {availableKeys.length > 0 ? (
+            <>
+              <select value={defaultModel} onChange={(e)=>setDefaultModel(e.target.value)}>
+                {availableKeys.map(k => (
+                  <option key={k} value={k}>{k}</option>
+                ))}
+              </select>
+              <button onClick={handleSaveDefaultModel} style={{ marginLeft: 8 }}>Save</button>
+            </>
+          ) : (
+            <div style={{ opacity: 0.8 }}>No models detected. Place files under <code>public/models/</code>.</div>
+          )}
         </div>
       </div>
 

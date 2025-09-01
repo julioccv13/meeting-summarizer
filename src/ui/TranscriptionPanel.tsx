@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { getWhisperAPI, initWhisper, estimateTranscriptionTime } from '../whisper/api'
-import { AVAILABLE_MODELS } from '../whisper/loader'
+import { AVAILABLE_MODELS, detectAvailableModels } from '../whisper/loader'
 import { getPCM } from '../store/db'
 import { listItems } from '../store/db'
 import type { MediaMeta } from '../types'
@@ -22,7 +22,7 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
   const [progressMessage, setProgressMessage] = useState('')
   
   // UI State
-  const [selectedModel, setSelectedModel] = useState('tiny')
+  const [selectedModel, setSelectedModel] = useState('base.q5_1')
   const [selectedLanguage, setSelectedLanguage] = useState('auto')
   const [audioSource, setAudioSource] = useState<AudioSource>('recording')
   const [selectedImportId, setSelectedImportId] = useState('')
@@ -41,9 +41,14 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
   useEffect(() => {
     // load default model from settings
     try {
+      const keys = await detectAvailableModels()
       const saved = localStorage.getItem('defaultModel')
-      if (saved && AVAILABLE_MODELS[saved]) {
+      if (saved && keys.includes(saved)) {
         setSelectedModel(saved)
+      } else if (keys.includes('base.q5_1')) {
+        setSelectedModel('base.q5_1')
+      } else if (keys.length > 0) {
+        setSelectedModel(keys[0])
       }
     } catch {}
     loadImportedItems()

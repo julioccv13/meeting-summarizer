@@ -62,7 +62,44 @@ export const AVAILABLE_MODELS: Record<string, ModelInfo> = {
     url: `${import.meta.env.BASE_URL}models/ggml-small.bin`,
     size: 244 * 1024 * 1024, // ~244MB
     description: 'Good accuracy (~6x realtime)'
+  },
+  // Present in this repo by default (quantized)
+  'base.q5_1': {
+    name: 'base.q5_1',
+    url: `${import.meta.env.BASE_URL}models/ggml-base-q5_1.bin`,
+    size: 60 * 1024 * 1024, // ~60MB
+    description: 'Base quantized (q5_1): good balance of size/quality',
+    recommended: true
   }
+}
+
+/**
+ * Probe a model URL without downloading the whole file.
+ * Tries HEAD first; falls back to a ranged GET (0-0) for servers without HEAD support.
+ */
+export async function isModelUrlAvailable(url: string): Promise<boolean> {
+  try {
+    const head = await fetch(url, { method: 'HEAD', cache: 'no-cache' })
+    if (head.ok) return true
+  } catch {}
+  try {
+    const ranged = await fetch(url, { headers: { Range: 'bytes=0-0' }, cache: 'no-cache' })
+    if (ranged.ok || ranged.status === 206) return true
+  } catch {}
+  return false
+}
+
+/**
+ * Detect which models are available by probing their URLs.
+ */
+export async function detectAvailableModels(): Promise<string[]> {
+  const entries = Object.entries(AVAILABLE_MODELS)
+  const results: string[] = []
+  await Promise.all(entries.map(async ([key, info]) => {
+    const ok = await isModelUrlAvailable(info.url)
+    if (ok) results.push(key)
+  }))
+  return results
 }
 
 let modelDB: IDBDatabase | null = null
@@ -156,6 +193,10 @@ export async function downloadAndCacheModel(
 ): Promise<ArrayBuffer> {
   const modelInfo = AVAILABLE_MODELS[modelName]
   if (!modelInfo) {
+    // fallback to quantized base if available
+    if (AVAILABLE_MODELS['base.q5_1']) {
+      return downloadAndCacheModel('base.q5_1', onProgress)
+    }
     throw new Error(`Unknown model: ${modelName}`)
   }
 
@@ -183,6 +224,11 @@ export async function downloadAndCacheModel(
     const response = await fetch(modelInfo.url)
     
     if (!response.ok) {
+      // Try fallback model present in repo
+      if (modelName !== 'base.q5_1' && AVAILABLE_MODELS['base.q5_1']) {
+        console.warn(`Model ${modelName} not found (${response.status}). Falling back to base.q5_1`)
+        return downloadAndCacheModel('base.q5_1', onProgress)
+      }
       throw new Error(`Failed to download model: ${response.status} ${response.statusText}`)
     }
 
