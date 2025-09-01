@@ -1,14 +1,10 @@
-import { registerSW } from 'virtual:pwa-register'
-
 export function register() {
-  // vite-plugin-pwa handles dev/prod registration and updates
-  const updateSW = registerSW({
-    immediate: true,
-    onNeedRefresh() {
-      console.log('PWA update available')
-    },
-    onOfflineReady() {
-      console.log('PWA ready to work offline')
-    }
-  })
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      const swUrl = new URL(`${import.meta.env.BASE_URL}sw.js`, location.href).toString()
+      navigator.serviceWorker.register(swUrl).catch((err) => {
+        console.warn('SW registration failed:', err)
+      })
+    })
+  }
 }
