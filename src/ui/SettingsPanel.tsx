@@ -5,10 +5,22 @@ export default function SettingsPanel() {
   const [defaultModel, setDefaultModel] = useState<string>('tiny')
   const [modelBytes, setModelBytes] = useState<number>(0)
   const [busy, setBusy] = useState<boolean>(false)
+  const [summaryMaxSentences, setSummaryMaxSentences] = useState<number>(5)
+  const [summaryMaxChars, setSummaryMaxChars] = useState<number>(2000)
+  const [summaryDedup, setSummaryDedup] = useState<boolean>(true)
 
   useEffect(() => {
     const saved = localStorage.getItem('defaultModel')
     if (saved && AVAILABLE_MODELS[saved]) setDefaultModel(saved)
+    try {
+      const s = localStorage.getItem('summaryOptions')
+      if (s) {
+        const o = JSON.parse(s)
+        if (typeof o.maxSentences === 'number') setSummaryMaxSentences(o.maxSentences)
+        if (typeof o.maxChars === 'number') setSummaryMaxChars(o.maxChars)
+        if (typeof o.removeNearDuplicates === 'boolean') setSummaryDedup(o.removeNearDuplicates)
+      }
+    } catch {}
     refreshModelSize()
   }, [])
 
@@ -39,6 +51,17 @@ export default function SettingsPanel() {
   const handleSaveDefaultModel = () => {
     localStorage.setItem('defaultModel', defaultModel)
     alert(`Default model set to: ${defaultModel}`)
+  }
+
+  const handleSaveSummaryOptions = () => {
+    const opts = {
+      maxSentences: summaryMaxSentences,
+      maxChars: summaryMaxChars,
+      removeNearDuplicates: summaryDedup,
+      locale: 'en'
+    }
+    localStorage.setItem('summaryOptions', JSON.stringify(opts))
+    alert('Summary options saved')
   }
 
   const handleClearModelCache = async () => {
@@ -82,6 +105,25 @@ export default function SettingsPanel() {
         </div>
       </div>
 
+      <hr style={{ margin: '16px 0', border: 0, borderTop: '1px solid #e5e7eb' }} />
+
+      <h4>Summary Options</h4>
+      <div className="row" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <label>
+          Max sentences
+          <input type="number" min={1} max={20} value={summaryMaxSentences} onChange={(e)=>setSummaryMaxSentences(parseInt(e.target.value||'5',10))} style={{ marginLeft: 6, width: 80 }} />
+        </label>
+        <label>
+          Max characters
+          <input type="number" min={200} max={20000} value={summaryMaxChars} onChange={(e)=>setSummaryMaxChars(parseInt(e.target.value||'2000',10))} style={{ marginLeft: 6, width: 100 }} />
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <input type="checkbox" checked={summaryDedup} onChange={(e)=>setSummaryDedup(e.target.checked)} />
+          Remove near-duplicates
+        </label>
+        <button onClick={handleSaveSummaryOptions} className="btn-primary">Save</button>
+      </div>
+
       <div className="row" style={{ marginTop: 12 }}>
         <div className="col">
           <button onClick={handleClearSWCaches} disabled={busy}>🗑️ Clear SW Caches</button>
@@ -90,4 +132,3 @@ export default function SettingsPanel() {
     </div>
   )
 }
-

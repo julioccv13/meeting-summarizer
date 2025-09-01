@@ -187,30 +187,9 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
       {/* Initialization Section */}
       {!isInitialized && (
         <div className="init-section">
-          <div className="model-selection">
-            <label htmlFor="model-select">Model:</label>
-            <select 
-              id="model-select"
-              value={selectedModel} 
-              onChange={(e) => setSelectedModel(e.target.value)}
-              disabled={isInitializing}
-            >
-              {Object.entries(AVAILABLE_MODELS).map(([key, info]) => (
-                <option key={key} value={key}>
-                  {info.name} - {info.description}
-                </option>
-              ))}
-            </select>
+          <div className="model-info">
+            <p>Model: <strong>{selectedModel}</strong> (change in Settings)</p>
           </div>
-
-          {selectedModelInfo && (
-            <div className="model-info">
-              <p>Size: ~{Math.round(selectedModelInfo.size / (1024 * 1024))}MB</p>
-              <p>Speed: {selectedModelInfo.description.includes('realtime') ? 
-                selectedModelInfo.description.split('(')[1]?.split(')')[0] : 
-                'Variable speed'}</p>
-            </div>
-          )}
 
           <button 
             className="init-button"
