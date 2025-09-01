@@ -3,7 +3,7 @@ import RecorderPanel from './ui/RecorderPanel'
 import ImportPanel from './ui/ImportPanel'
 import TranscriptionPanel from './ui/TranscriptionPanel'
 import TranscriptView from './ui/TranscriptView'
-import SummaryPanel from './ui/SummaryPanel'
+import { SummaryPanel } from './ui/SummaryPanel'
 import StorageManager from './ui/StorageManager'
 import { showA2HSHintIfNeeded } from './pwa/a2hsHint'
 import { showInstallPrompt, subscribeToInstallState, getInstallState } from './pwa/installPrompt'
@@ -53,7 +53,10 @@ export default function App() {
 
       <section>
         <h2>5) Summarize</h2>
-        <SummaryPanel sourceText={transcript} onSummary={setSummary} />
+        <SummaryPanel 
+          text={transcript}
+          onSummaryGenerated={(res) => setSummary(res.summary)}
+        />
       </section>
 
       <section>

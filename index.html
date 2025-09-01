@@ -10,7 +10,17 @@
     <title>PWA Transcribe & Summarize</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <style>
+        .boot-loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}.boot-card{padding:16px 20px;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06);background:#fff;color:#111}.boot-title{margin:0 0 6px 0;font-weight:600}.boot-sub{margin:0;opacity:.7;font-size:13px}
+      </style>
+      <div class="boot-loading">
+        <div class="boot-card">
+          <div class="boot-title">Loading Meeting Summarizer…</div>
+          <p class="boot-sub">If this persists, refresh the page.</p>
+        </div>
+      </div>
+    </div>
     <script type="module" src="src/main.tsx"></script>
   </body>
   </html>
