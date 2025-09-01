@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 // BASE-aware manual Service Worker for GitHub Pages hosting
-const CACHE = 'app-shell-v1'
+const CACHE = 'app-shell-v2'
 const BASE = new URL(self.registration.scope).pathname // e.g., '/meeting-summarizer/'
 const APP_SHELL = [BASE, `${BASE}index.html`, `${BASE}manifest.webmanifest`, `${BASE}icons/icon-192.png`, `${BASE}icons/icon-512.png`]
 
@@ -63,4 +63,3 @@ self.addEventListener('fetch', (event) => {
     })())
   }
 })
-
