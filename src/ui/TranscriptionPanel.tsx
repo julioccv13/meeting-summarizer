@@ -39,19 +39,21 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
 
   // Load defaults and imported items
   useEffect(() => {
-    // load default model from settings
-    try {
-      const keys = await detectAvailableModels()
-      const saved = localStorage.getItem('defaultModel')
-      if (saved && keys.includes(saved)) {
-        setSelectedModel(saved)
-      } else if (keys.includes('base.q5_1')) {
-        setSelectedModel('base.q5_1')
-      } else if (keys.length > 0) {
-        setSelectedModel(keys[0])
-      }
-    } catch {}
-    loadImportedItems()
+    // load default model from settings (async probe)
+    (async () => {
+      try {
+        const keys = await detectAvailableModels()
+        const saved = localStorage.getItem('defaultModel')
+        if (saved && keys.includes(saved)) {
+          setSelectedModel(saved)
+        } else if (keys.includes('base.q5_1')) {
+          setSelectedModel('base.q5_1')
+        } else if (keys.length > 0) {
+          setSelectedModel(keys[0])
+        }
+      } catch {}
+      await loadImportedItems()
+    })()
   }, [])
 
   const loadImportedItems = async () => {
