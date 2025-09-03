@@ -25,7 +25,7 @@ self.addEventListener('fetch', (event) => {
 
   // Cache-first for models and WASM
   const isModel = isSameOrigin && (url.pathname.startsWith(`${BASE}models/`) || /\.(?:bin|ggml|model)$/.test(url.pathname))
-  const isWasm = isSameOrigin && url.pathname.endsWith('.wasm')
+  const isWasm = isSameOrigin && (url.pathname.endsWith('.wasm') || url.pathname.startsWith(`${BASE}whisper/`))
 
   if (isModel || isWasm) {
     event.respondWith((async () => {

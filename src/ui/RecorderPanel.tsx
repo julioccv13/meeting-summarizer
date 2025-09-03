@@ -78,14 +78,9 @@ export default function RecorderPanel({ onResult, onError }: RecorderPanelProps)
       const result = await handle.stop()
       onResult?.(result)
       setStatus('done')
-      
-      // Auto-reset to idle after showing done state briefly
-      setTimeout(() => {
-        if (status === 'done') {
-          setStatus('idle')
-          resetState()
-        }
-      }, 2000)
+      // Reset immediately for clearer UX
+      setStatus('idle')
+      resetState()
       
     } catch (error: any) {
       const errorMsg = error.message || 'Failed to stop recording'

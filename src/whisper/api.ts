@@ -4,7 +4,7 @@
  */
 
 import type { TranscribeOptions, Segment } from '../workers/whisper.worker'
-import { loadModel } from './loader'
+import { loadModel, AVAILABLE_MODELS } from './loader'
 
 export type { TranscribeOptions, Segment }
 
@@ -56,14 +56,6 @@ export class WhisperAPI {
 
       onProgress?.({ progress: 0.0, message: 'Loading model...' })
 
-      // Load the model data
-      const modelData = await loadModel(modelName, (loadProgress) => {
-        onProgress?.({ 
-          progress: loadProgress.percentage / 100 * 0.5, // First 50% for model loading
-          message: loadProgress.status 
-        })
-      })
-
       onProgress?.({ progress: 0.5, message: 'Starting worker...' })
 
       // Create and configure worker
@@ -77,18 +69,26 @@ export class WhisperAPI {
 
       onProgress?.({ progress: 0.6, message: 'Initializing Whisper...' })
 
-      // Initialize worker with model
-      await this.sendMessageToWorker(
-        { type: 'init', modelName, modelData },
-        (message) => {
-          if (message.type === 'status') {
-            onProgress?.({ 
-              progress: 0.6 + (message.progress * 0.4), // 60-100% for worker init
-              message: message.message 
-            })
-          }
+      // Initialize worker with WASM URL
+      const wasmURL = `${import.meta.env.BASE_URL}whisper/whisper.wasm`
+      const glueURL = `${import.meta.env.BASE_URL}whisper/libmain.worker.js`
+      await this.sendMessageToWorker({ type: 'init', wasmURL, glueURL, preferThreads: true }, (m)=>{
+        if (m.type === 'progress') {
+          const stage = m.stage === 'Initialize' ? 0.6 : 0.7
+          const p = typeof m.value === 'number' ? m.value/100 : 0
+          onProgress?.({ progress: stage + p*0.2, message: m.note || m.stage })
         }
-      )
+      })
+
+      // Load model inside worker by URL (respect BASE_URL)
+      const modelInfo = AVAILABLE_MODELS[modelName]
+      if (!modelInfo) throw new Error(`Unknown model: ${modelName}`)
+      await this.sendMessageToWorker({ type: 'loadModel', modelId: modelName, modelURL: modelInfo.url }, (m)=>{
+        if (m.type === 'progress') {
+          const p = typeof m.value === 'number' ? m.value/100 : 0
+          onProgress?.({ progress: 0.8 + p*0.2, message: m.note || 'Loading model…' })
+        }
+      })
 
       this.isInitialized = true
       onProgress?.({ progress: 1.0, message: 'Ready for transcription' })
@@ -123,18 +123,18 @@ export class WhisperAPI {
       
       callbacks.onProgress?.({ progress: 0.0, message: 'Starting transcription...' })
 
+      const id = `job_${Date.now()}`
       const result = await this.sendMessageToWorker(
-        { type: 'transcribe', pcm, options },
-        this.handleTranscriptionMessage.bind(this)
+        { type: 'transcribe', id, pcm, sampleRate: 16000, opts: {} },
+        (m)=>{
+          if (m.type === 'progress') callbacks.onProgress?.({ progress: (m.value ?? 0)/100, message: m.stage })
+          if (m.type === 'language' && m.code) callbacks.onProgress?.({ progress: 0.5, message: `Language: ${m.code}` })
+        }
       )
 
       const duration = (Date.now() - startTime) / 1000
 
-      return {
-        text: result.text,
-        segments: result.segments || [],
-        duration
-      }
+      return { text: result.text, segments: result.segments || [], duration }
 
     } finally {
       this.isTranscribing = false
@@ -201,12 +201,12 @@ export class WhisperAPI {
         const { type, ...data } = event.data
 
         switch (type) {
-          case 'ready':
+          case 'modelLoaded':
             this.worker!.removeEventListener('message', handleMessage)
-            resolve({ type: 'ready' })
+            resolve({ type: 'modelLoaded' })
             break
 
-          case 'done':
+          case 'result':
             this.worker!.removeEventListener('message', handleMessage)
             resolve({ text: data.text, segments: data.segments })
             break
@@ -216,8 +216,8 @@ export class WhisperAPI {
             reject(new Error(data.message))
             break
 
-          case 'status':
-          case 'segment':
+          case 'progress':
+          case 'language':
             progressHandler?.(event.data)
             break
 
