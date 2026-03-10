@@ -6,9 +6,9 @@ import {
   searchTranscripts,
   exportTranscript,
   clearAllTranscripts
-} from '../store/transcripts'
-import { downloadText, downloadSRT, downloadJSON, showToast, formatFileSize } from '../utils/download'
-import type { TranscriptItem, TranscriptSearchResult } from '../store/transcripts'
+} from '../../../lib/store/transcripts'
+import { downloadText, downloadSRT, downloadJSON, showToast, formatFileSize } from '../../../lib/utils/download'
+import type { TranscriptItem, TranscriptSearchResult } from '../../../lib/store/transcripts'
 
 interface TranscriptHistoryProps {
   onSelectTranscript?: (transcript: TranscriptItem) => void

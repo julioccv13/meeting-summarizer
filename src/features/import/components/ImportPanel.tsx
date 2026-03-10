@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { ImportedItem, MediaMeta, ImportProgress } from '../types'
-import { importFiles, validateFiles } from '../import/importer'
-import { listItems, deleteItem, formatBytes, formatDuration, getStorageInfo } from '../store/db'
-import type { StorageInfo } from '../types'
+import { ImportedItem, MediaMeta, ImportProgress } from '../../../lib/types'
+import { importFiles, validateFiles } from '../lib/importer'
+import { listItems, deleteItem, formatBytes, formatDuration, getStorageInfo } from '../../../lib/store/db'
+import type { StorageInfo } from '../../../lib/types'
 
 interface ImportPanelProps {
   onImported?: (items: ImportedItem[]) => void

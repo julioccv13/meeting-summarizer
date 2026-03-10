@@ -1,6 +1,6 @@
-import { DecodedAudio, ImportedItem, FileValidation, ImportProgress } from '../types'
-import { resampleTo16kMono } from '../audio/resampler'
-import { storeImportedItem } from '../store/db'
+import { DecodedAudio, ImportedItem, FileValidation, ImportProgress } from '../../../lib/types'
+import { resampleTo16kMono } from '../../../lib/audio/resampler'
+import { storeImportedItem } from '../../../lib/store/db'
 
 /**
  * Audio/Video file importer with offline decoding capabilities

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { StorageInfo, MediaMeta } from '../types'
-import { clearAllCachedModels, getCachedModelsSize } from '../whisper/loader'
+import { StorageInfo, MediaMeta } from '../../../lib/types'
+import { clearAllCachedModels, getCachedModelsSize } from '../../../lib/whisper/loader'
 import { 
   getStorageInfo, 
   listItems, 
@@ -8,7 +8,7 @@ import {
   clearAllData, 
   formatBytes, 
   formatDuration 
-} from '../store/db'
+} from '../../../lib/store/db'
 
 interface StorageManagerProps {
   onStorageChange?: () => void

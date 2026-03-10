@@ -13,9 +13,9 @@ import {
   exportSummary,
   type SummaryItem,
   type SummarySearchResult 
-} from '../store/summaries'
+} from '../../../lib/store/summaries'
 import SummaryView from './SummaryView'
-import { downloadText } from '../utils/download'
+import { downloadText } from '../../../lib/utils/download'
 
 /**
  * Summary history props

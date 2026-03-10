@@ -1,5 +1,5 @@
-import { writeWavPCM16 } from '../utils/wav'
-import { resampleTo16kMono, channelMixToMono } from './resampler'
+import { writeWavPCM16 } from '../../../lib/utils/wav'
+import { resampleTo16kMono, channelMixToMono } from '../../../lib/audio/resampler'
 
 export interface RecorderResult {
   float32Mono16k: Float32Array

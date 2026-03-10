@@ -4,9 +4,9 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react'
-import { summarize, summarizeLongText, extractKeyPhrases, getSummaryStats, type SummarizationOptions, type SummaryResult } from '../nlp/textrank'
-import { downloadText, copyToClipboard, isClipboardSupported, shareContent, isShareSupported } from '../utils/download'
-import { detectLanguage } from '../nlp/stopwords'
+import { summarize, summarizeLongText, extractKeyPhrases, getSummaryStats, type SummarizationOptions, type SummaryResult } from '../../../lib/nlp/textrank'
+import { downloadText, copyToClipboard, isClipboardSupported, shareContent, isShareSupported } from '../../../lib/utils/download'
+import { detectLanguage } from '../../../lib/nlp/stopwords'
 
 /**
  * Summary panel props

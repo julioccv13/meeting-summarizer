@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import * as rec from '../audio/recorder'
+import * as rec from '../lib/recorder'
 
 type RecorderStatus = 'idle' | 'requesting' | 'recording' | 'stopping' | 'done' | 'error'
 

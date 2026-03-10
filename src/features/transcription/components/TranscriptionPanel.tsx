@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { getWhisperAPI, initWhisper, estimateTranscriptionTime } from '../whisper/api'
-import { AVAILABLE_MODELS, detectAvailableModels } from '../whisper/loader'
-import { getPCM } from '../store/db'
-import { listItems } from '../store/db'
-import type { MediaMeta } from '../types'
-import type { TranscribeOptions, Segment } from '../whisper/api'
+import { getWhisperAPI, initWhisper, estimateTranscriptionTime } from '../../../lib/whisper/api'
+import { AVAILABLE_MODELS, detectAvailableModels } from '../../../lib/whisper/loader'
+import { getPCM, listItems } from '../../../lib/store/db'
+import type { MediaMeta } from '../../../lib/types'
+import type { TranscribeOptions, Segment } from '../../../lib/whisper/api'
 
 interface TranscriptionPanelProps {
   onTranscript: (transcript: string, segments?: Segment[]) => void

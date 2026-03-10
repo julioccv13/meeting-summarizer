@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { AVAILABLE_MODELS, detectAvailableModels, getCachedModelsSize, clearAllCachedModels } from '../whisper/loader'
+import { AVAILABLE_MODELS, detectAvailableModels, getCachedModelsSize, clearAllCachedModels } from '../../../lib/whisper/loader'
 
 export default function SettingsPanel() {
   const [defaultModel, setDefaultModel] = useState<string>('base.q5_1')

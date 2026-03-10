@@ -4,9 +4,9 @@
  */
 
 import React, { useState, useCallback } from 'react'
-import { downloadText, copyToClipboard, isClipboardSupported } from '../utils/download'
-import { shareContent, isShareSupported } from '../utils/share'
-import type { SummaryResult } from '../nlp/textrank'
+import { downloadText, copyToClipboard, isClipboardSupported } from '../../../lib/utils/download'
+import { shareContent, isShareSupported } from '../../../lib/utils/share'
+import type { SummaryResult } from '../../../lib/nlp/textrank'
 
 /**
  * Summary view props

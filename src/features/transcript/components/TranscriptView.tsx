@@ -1,8 +1,8 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react'
-import type { Segment } from '../whisper/api'
-import { copyToClipboard, downloadText, downloadSRT, downloadJSON, generateSafeFileName, showToast, shareContent, isShareSupported, formatFileSize, getTextSize } from '../utils/download'
-import { saveTranscript, exportTranscript } from '../store/transcripts'
-import type { TranscriptItem } from '../store/transcripts'
+import type { Segment } from '../../../lib/whisper/api'
+import { copyToClipboard, downloadText, downloadSRT, downloadJSON, generateSafeFileName, showToast, shareContent, isShareSupported, formatFileSize, getTextSize } from '../../../lib/utils/download'
+import { saveTranscript, exportTranscript } from '../../../lib/store/transcripts'
+import type { TranscriptItem } from '../../../lib/store/transcripts'
 
 interface TranscriptViewProps {
   text: string
