@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { StorageInfo, MediaMeta } from '../../../lib/types'
 import { clearAllCachedModels, getCachedModelsSize } from '../../../lib/whisper/loader'
 import { 
@@ -23,12 +23,18 @@ export default function StorageManager({ onStorageChange, onError }: StorageMana
   const [showConfirmClear, setShowConfirmClear] = useState(false)
   const [modelBytes, setModelBytes] = useState<number>(0)
   const [cacheInfo, setCacheInfo] = useState<{ name: string; entries: number }[]>([])
+  const selectAllRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     loadData()
     refreshModelSize()
     refreshCacheInfo()
   }, [])
+
+  useEffect(() => {
+    if (!selectAllRef.current) return
+    selectAllRef.current.indeterminate = selectedItems.size > 0 && selectedItems.size < items.length
+  }, [items.length, selectedItems])
 
   const loadData = async () => {
     setIsLoading(true)
@@ -190,7 +196,7 @@ export default function StorageManager({ onStorageChange, onError }: StorageMana
     return (
       <div className="storage-manager loading">
         <div className="loading-spinner">⏳ Loading storage data...</div>
-        <style jsx>{`
+        <style>{`
           .storage-manager.loading {
             text-align: center;
             padding: 40px;
@@ -278,9 +284,9 @@ export default function StorageManager({ onStorageChange, onError }: StorageMana
         <div className="selection-info">
           <label className="select-all">
             <input
+              ref={selectAllRef}
               type="checkbox"
               checked={selectedItems.size === items.length && items.length > 0}
-              indeterminate={selectedItems.size > 0 && selectedItems.size < items.length}
               onChange={handleSelectAll}
             />
             Select All ({selectedItems.size} selected)
@@ -377,7 +383,7 @@ export default function StorageManager({ onStorageChange, onError }: StorageMana
       </div>
 
       {/* Inline Styles */}
-      <style jsx>{`
+      <style>{`
         .storage-manager {
           max-width: 800px;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

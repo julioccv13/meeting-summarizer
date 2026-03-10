@@ -218,7 +218,7 @@ function pagerank(
   
   // Initialize scores equally
   let scores = Array(n).fill(1 / n)
-  const newScores = Array(n).fill(0)
+  let newScores = Array(n).fill(0)
   
   for (let iter = 0; iter < maxIterations; iter++) {
     // Calculate new scores

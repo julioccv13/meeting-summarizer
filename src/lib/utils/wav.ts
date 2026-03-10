@@ -46,7 +46,7 @@ export function floatTo32BitPCM(float32: Float32Array): Float32Array {
  */
 export function writeWavPCM16(mono16k: Float32Array, sampleRate = 16000, addDither = false): Blob {
   const samples = floatTo16BitPCM(mono16k, addDither);
-  return createWavFile(samples.buffer, {
+  return createWavFile(samples.buffer as ArrayBuffer, {
     sampleRate,
     numChannels: 1,
     bitsPerSample: 16,
@@ -62,7 +62,7 @@ export function writeWavPCM16(mono16k: Float32Array, sampleRate = 16000, addDith
  */
 export function writeWavPCM32Float(mono16k: Float32Array, sampleRate = 16000): Blob {
   const samples = floatTo32BitPCM(mono16k);
-  return createWavFile(samples.buffer, {
+  return createWavFile(samples.buffer as ArrayBuffer, {
     sampleRate,
     numChannels: 1,
     bitsPerSample: 32,

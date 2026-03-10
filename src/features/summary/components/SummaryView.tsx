@@ -235,7 +235,7 @@ export const SummaryView: React.FC<SummaryViewProps> = ({
         </>
       )}
 
-      <style jsx>{`
+      <style>{`
         .summary-view {
           background: #ffffff;
           border: 1px solid #e1e5e9;

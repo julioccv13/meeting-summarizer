@@ -280,7 +280,7 @@ export default function ImportPanel({ onImported, onError }: ImportPanelProps) {
       </div>
 
       {/* Inline Styles */}
-      <style jsx>{`
+      <style>{`
         .import-panel {
           max-width: 600px;
         }

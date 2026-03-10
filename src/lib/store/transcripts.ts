@@ -230,8 +230,8 @@ export async function listTranscripts(options: {
         source = store.index('language')
       } else if (audioSource) {
         source = store.index('audioSource')
-      } else if (sortBy !== 'id') {
-        source = store.index(`metadata.${sortBy}`)
+      } else {
+        source = store.index(sortBy)
       }
 
       const request = source.getAll()

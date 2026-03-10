@@ -384,7 +384,7 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .summary-panel {
           background: #f8f9fa;
           border-radius: 8px;

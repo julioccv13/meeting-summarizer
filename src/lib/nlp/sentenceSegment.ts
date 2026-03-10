@@ -13,6 +13,10 @@ export interface SegmentationOptions {
   cleanWhitespace?: boolean
 }
 
+interface SegmenterLike {
+  segment(input: string): Iterable<{ segment: string; isWordLike?: boolean }>
+}
+
 /**
  * Sentence boundary patterns for different languages
  */
@@ -58,7 +62,13 @@ function isSegmenterSupported(): boolean {
  */
 function segmentWithIntl(text: string, locale: string): string[] {
   try {
-    const segmenter = new Intl.Segmenter(locale, { granularity: 'sentence' })
+    const SegmenterCtor = (Intl as typeof Intl & {
+      Segmenter?: new (locale: string, options: { granularity: 'sentence' }) => SegmenterLike
+    }).Segmenter
+    if (!SegmenterCtor) {
+      return segmentWithRegex(text, locale)
+    }
+    const segmenter = new SegmenterCtor(locale, { granularity: 'sentence' })
     const segments = Array.from(segmenter.segment(text))
     
     return segments

@@ -177,7 +177,7 @@ export async function getItem(id: string, includeOriginal = false): Promise<Impo
     if (!meta) return null
 
     const pcm = await getPCM(id)
-    const originalFile = includeOriginal ? await getOriginal(id) : undefined
+    const originalFile = includeOriginal ? (await getOriginal(id)) || undefined : undefined
 
     return {
       meta,

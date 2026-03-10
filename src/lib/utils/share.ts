@@ -288,7 +288,7 @@ export function getAvailableShareOptions(
   }
 
   // Copy to clipboard
-  if (navigator.clipboard || document.execCommand) {
+  if (navigator.clipboard || typeof document.execCommand === 'function') {
     options.push({
       id: 'copy',
       name: 'Copy to Clipboard',

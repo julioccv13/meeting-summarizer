@@ -193,7 +193,7 @@ export default function RecorderPanel({ onResult, onError }: RecorderPanelProps)
       </div>
 
       {/* Inline styles for the component */}
-      <style jsx>{`
+      <style>{`
         .recorder-panel {
           max-width: 500px;
         }

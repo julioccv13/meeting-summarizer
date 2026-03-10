@@ -361,7 +361,7 @@ export default function TranscriptView({
       </div>
 
       {/* Inline Styles */}
-      <style jsx>{`
+      <style>{`
         .transcript-view {
           max-width: 800px;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

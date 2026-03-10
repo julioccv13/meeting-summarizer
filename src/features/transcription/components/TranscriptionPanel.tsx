@@ -10,8 +10,6 @@ interface TranscriptionPanelProps {
   onError?: (error: Error) => void
 }
 
-type AudioSource = 'recording' | 'imported'
-
 export default function TranscriptionPanel({ onTranscript, onError }: TranscriptionPanelProps) {
   const [isInitialized, setIsInitialized] = useState(false)
   const [isInitializing, setIsInitializing] = useState(false)
@@ -23,7 +21,6 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
   // UI State
   const [selectedModel, setSelectedModel] = useState('base.q5_1')
   const [selectedLanguage, setSelectedLanguage] = useState('auto')
-  const [audioSource, setAudioSource] = useState<AudioSource>('recording')
   const [selectedImportId, setSelectedImportId] = useState('')
   const [importedItems, setImportedItems] = useState<MediaMeta[]>([])
   const [showAdvanced, setShowAdvanced] = useState(false)
@@ -99,30 +96,23 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
     let audioInfo: { duration: number; name: string } | null = null
 
     try {
-      if (audioSource === 'recording') {
-        // TODO: Get PCM from latest recording
-        // For now, show error
-        throw new Error('Recording transcription not yet implemented. Please import an audio file first.')
-        
-      } else if (audioSource === 'imported') {
-        if (!selectedImportId) {
-          throw new Error('Please select an imported audio file')
-        }
+      if (!selectedImportId) {
+        throw new Error('Please select an imported audio file')
+      }
 
-        const selectedItem = importedItems.find(item => item.id === selectedImportId)
-        if (!selectedItem) {
-          throw new Error('Selected audio file not found')
-        }
+      const selectedItem = importedItems.find(item => item.id === selectedImportId)
+      if (!selectedItem) {
+        throw new Error('Selected audio file not found')
+      }
 
-        pcmData = await getPCM(selectedImportId)
-        if (!pcmData) {
-          throw new Error('Failed to load audio data')
-        }
+      pcmData = await getPCM(selectedImportId)
+      if (!pcmData) {
+        throw new Error('Failed to load audio data')
+      }
 
-        audioInfo = {
-          duration: selectedItem.durationSec,
-          name: selectedItem.name
-        }
+      audioInfo = {
+        duration: selectedItem.durationSec,
+        name: selectedItem.name
       }
 
       if (!pcmData || !audioInfo) {
@@ -134,7 +124,7 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
       setCurrentSegments([])
       setProgressMessage('Starting transcription...')
 
-      const estimatedTime = estimateTranscriptionTime(audioInfo.duration, selectedModel)
+      estimateTranscriptionTime(audioInfo.duration, selectedModel)
       
       const options: TranscribeOptions = {
         language: selectedLanguage === 'auto' ? undefined : selectedLanguage,
@@ -222,63 +212,36 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
       {/* Transcription Section */}
       {isInitialized && (
         <div className="transcription-section">
-          {/* Audio Source Selection */}
-          <div className="source-selection">
-            <h4>Audio Source</h4>
-            <div className="radio-group">
-              <label>
-                <input
-                  type="radio"
-                  value="recording"
-                  checked={audioSource === 'recording'}
-                  onChange={(e) => setAudioSource(e.target.value as AudioSource)}
-                  disabled={isTranscribing}
-                />
-                Latest Recording
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="imported"
-                  checked={audioSource === 'imported'}
-                  onChange={(e) => setAudioSource(e.target.value as AudioSource)}
-                  disabled={isTranscribing}
-                />
-                Imported File
-              </label>
-            </div>
-          </div>
-
-          {/* Imported File Selection */}
-          {audioSource === 'imported' && (
-            <div className="import-selection">
-              <label htmlFor="import-select">Select File:</label>
-              <select
-                id="import-select"
-                value={selectedImportId}
-                onChange={(e) => setSelectedImportId(e.target.value)}
-                disabled={isTranscribing || importedItems.length === 0}
-              >
-                {importedItems.length === 0 ? (
-                  <option value="">No imported files available</option>
-                ) : (
-                  importedItems.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name} ({Math.round(item.durationSec)}s)
-                    </option>
-                  ))
-                )}
-              </select>
-              
-              {selectedItemInfo && (
-                <div className="selected-file-info">
-                  <p>Duration: {selectedItemInfo.durationSec.toFixed(1)}s</p>
-                  <p>Size: {Math.round(selectedItemInfo.size / 1024)}KB</p>
-                  <p>Original: {selectedItemInfo.originalSampleRate}Hz, {selectedItemInfo.originalChannels} ch</p>
-                </div>
+          <div className="import-selection">
+            <label htmlFor="import-select">Imported File:</label>
+            <select
+              id="import-select"
+              value={selectedImportId}
+              onChange={(e) => setSelectedImportId(e.target.value)}
+              disabled={isTranscribing || importedItems.length === 0}
+            >
+              {importedItems.length === 0 ? (
+                <option value="">No imported files available</option>
+              ) : (
+                importedItems.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({Math.round(item.durationSec)}s)
+                  </option>
+                ))
               )}
-            </div>
-          )}
+            </select>
+            
+            {selectedItemInfo && (
+              <div className="selected-file-info">
+                <p>Duration: {selectedItemInfo.durationSec.toFixed(1)}s</p>
+                <p>Size: {Math.round(selectedItemInfo.size / 1024)}KB</p>
+                <p>Original: {selectedItemInfo.originalSampleRate}Hz, {selectedItemInfo.originalChannels} ch</p>
+              </div>
+            )}
+            {importedItems.length === 0 && (
+              <p className="help-text">Import an audio or video file in the Import section before transcribing here.</p>
+            )}
+          </div>
 
           {/* Language Selection */}
           <div className="language-selection">
@@ -359,7 +322,7 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
             <button 
               className="transcribe-button"
               onClick={handleTranscribe}
-              disabled={isTranscribing || (audioSource === 'imported' && !selectedImportId)}
+              disabled={isTranscribing || !selectedImportId}
             >
               {isTranscribing ? 'Transcribing...' : 'Start Transcription'}
             </button>
@@ -417,7 +380,7 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
       )}
 
       {/* Inline Styles */}
-      <style jsx>{`
+      <style>{`
         .transcription-panel {
           max-width: 600px;
         }
@@ -492,30 +455,18 @@ export default function TranscriptionPanel({ onTranscript, onError }: Transcript
           margin-bottom: 16px;
         }
 
-        .source-selection h4 {
-          margin-bottom: 8px;
-          color: #333;
-        }
-
-        .radio-group {
-          display: flex;
-          gap: 16px;
-          margin-bottom: 16px;
-        }
-
-        .radio-group label {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          cursor: pointer;
-        }
-
         .selected-file-info {
           background: #f9f9f9;
           padding: 8px 12px;
           border-radius: 4px;
           margin-top: 8px;
           font-size: 12px;
+          color: #666;
+        }
+
+        .help-text {
+          margin-top: 8px;
+          font-size: 13px;
           color: #666;
         }
 

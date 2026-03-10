@@ -22,7 +22,7 @@ export default function App() {
   const [summary, setSummary] = useState<string>('')
   const [canInstall, setCanInstall] = useState<boolean>(false)
   const [tab, setTab] = useState<'work' | 'library' | 'settings'>('work')
-  const [processing, setProcessing] = useState<{active:boolean; message?:string}>({active:false})
+  const [processing, setProcessing] = useState<{active:boolean; message?:string; progress?:number}>({active:false})
   const [autoSummarizeRequested, setAutoSummarizeRequested] = useState<boolean>(false)
 
   useEffect(() => {
@@ -149,7 +149,7 @@ export default function App() {
           <section>
             <h2>Transcript</h2>
             <p className="section-desc">Review and search your transcript. Save or export as needed.</p>
-            <TranscriptView text={transcript} />
+            <TranscriptView text={transcript} segments={transcriptSegments} />
           </section>
           <section>
             <h2>Summary</h2>

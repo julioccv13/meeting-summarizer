@@ -389,7 +389,7 @@ export const SummaryHistory: React.FC<SummaryHistoryProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .summary-history {
           background: #f8f9fa;
           border-radius: 12px;

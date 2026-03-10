@@ -196,9 +196,9 @@ export async function listSummaries(options: {
         indexSource = store.index('transcriptId')
       } else if (source) {
         indexSource = store.index('source')
-      } else if (sortBy !== 'id') {
+      } else {
         try {
-          indexSource = store.index(`metadata.${sortBy}`)
+          indexSource = store.index(sortBy)
         } catch {
           // Fallback to main store if index doesn't exist
           indexSource = store

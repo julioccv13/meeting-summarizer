@@ -3,10 +3,23 @@
  * Provides a clean interface for transcription with progress tracking
  */
 
-import type { TranscribeOptions, Segment } from '../workers/whisper.worker'
-import { loadModel, AVAILABLE_MODELS } from './loader'
+import { AVAILABLE_MODELS } from './loader'
 
-export type { TranscribeOptions, Segment }
+export interface Segment {
+  start: number
+  end: number
+  text: string
+}
+
+export interface TranscribeOptions {
+  language?: string
+  temperature?: number
+  translate?: boolean
+  wordTimestamps?: boolean
+  threads?: number
+  chunkMs?: number
+  beamSize?: number
+}
 
 interface TranscriptionProgress {
   progress: number // 0 to 1
@@ -125,7 +138,7 @@ export class WhisperAPI {
 
       const id = `job_${Date.now()}`
       const result = await this.sendMessageToWorker(
-        { type: 'transcribe', id, pcm, sampleRate: 16000, opts: {} },
+        { type: 'transcribe', id, pcm, sampleRate: 16000, opts: options },
         (m)=>{
           if (m.type === 'progress') callbacks.onProgress?.({ progress: (m.value ?? 0)/100, message: m.stage })
           if (m.type === 'language' && m.code) callbacks.onProgress?.({ progress: 0.5, message: `Language: ${m.code}` })
@@ -208,7 +221,16 @@ export class WhisperAPI {
 
           case 'result':
             this.worker!.removeEventListener('message', handleMessage)
-            resolve({ text: data.text, segments: data.segments })
+            resolve({
+              text: data.text,
+              segments: Array.isArray(data.segments)
+                ? data.segments.map((segment: { startMs: number; endMs: number; text: string }) => ({
+                    start: segment.startMs / 1000,
+                    end: segment.endMs / 1000,
+                    text: segment.text
+                  }))
+                : []
+            })
             break
 
           case 'error':
@@ -254,8 +276,8 @@ export class WhisperAPI {
       case 'segment':
         this.currentCallbacks?.onSegment?.({
           text: data.text,
-          start: data.start,
-          end: data.end
+          start: (data.startMs ?? data.start ?? 0) / ((data.startMs ?? null) !== null ? 1000 : 1),
+          end: (data.endMs ?? data.end ?? 0) / ((data.endMs ?? null) !== null ? 1000 : 1)
         })
         break
     }

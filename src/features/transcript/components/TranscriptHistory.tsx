@@ -214,7 +214,7 @@ export default function TranscriptHistory({ onSelectTranscript, onError }: Trans
     return (
       <div className="card transcript-history loading">
         <div className="loading-spinner">📚 Loading transcript history...</div>
-        <style jsx>{`
+        <style>{`
           .transcript-history.loading {
             text-align: center;
             padding: 40px;
@@ -430,7 +430,7 @@ export default function TranscriptHistory({ onSelectTranscript, onError }: Trans
       </div>
 
       {/* Inline Styles */}
-      <style jsx>{`
+      <style>{`
         .transcript-history {
           max-width: 800px;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
