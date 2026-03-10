@@ -3,7 +3,21 @@
 Last updated: 2026-03-10
 
 ## Summary
-Meeting Summarizer is an offline‑first Progressive Web App (PWA) to record or import audio, transcribe it locally, and generate concise summaries. It is built with Vite + React, uses a manual Service Worker for caching/offline, and persists data in IndexedDB. The app is designed to be hosted under a GitHub Pages subpath.
+Meeting Summarizer is an offline-first Progressive Web App (PWA) to record or import audio, transcribe it locally, and generate concise summaries. It is built with Vite + React, uses a manual Service Worker for caching/offline, and persists data in IndexedDB. The app is designed to be hosted under a GitHub Pages subpath.
+
+The project should be understood in two layers:
+
+- Product layer: an installable, browser-based meeting transcription and summarization tool.
+- Technical layer: a stable frontend shell and local data flow that is waiting for final integration of real Whisper WASM execution.
+
+## Current State In One Page
+
+- The app shell is active and buildable.
+- The repository has already been reorganized to be easier to maintain.
+- Main screens and storage flows are implemented.
+- Summary generation and history/export flows are implemented.
+- The active service worker is `public/sw.js`.
+- Real Whisper inference is not finished yet; the current worker simulates transcription behavior.
 
 ## Key Features
 - Recording: Capture microphone audio in the browser with a live level meter and elapsed time.
@@ -14,6 +28,25 @@ Meeting Summarizer is an offline‑first Progressive Web App (PWA) to record or 
 - PWA: Installable, offline capable, iOS/Android friendly, with custom service worker.
 - GitHub Pages: Fully subpath‑aware paths for assets, service worker, and manifest.
 
+## What Is Real Today vs What Is Still Scaffolded
+
+### Real and active now
+
+- UI navigation and screen structure
+- Import flow
+- Transcript and summary persistence
+- Transcript and summary history
+- Export logic
+- Settings and model detection
+- Active service worker registration
+- Build and typecheck of active code
+
+### Still scaffolded or pending final integration
+
+- Real Whisper on-device transcription runtime
+- Full browser automation validation in this environment
+- Final production polish and accessibility pass
+
 ## Top-Level Structure
 - `index.html` — Root HTML entry used by Vite.
 - `public/`
@@ -21,7 +54,7 @@ Meeting Summarizer is an offline‑first Progressive Web App (PWA) to record or 
   - `icons/` — Install icons.
   - `models/` — Whisper model binaries served directly.
   - `whisper/` — Runtime WASM/glue assets served directly.
-  - `sw.js` — Manual, BASE-aware service worker.
+  - `sw.js` — Manual, BASE-aware service worker currently used by the app.
 - `src/`
   - `main.tsx` — App bootstrap, ErrorBoundary, SW registration.
   - `app/` — App shell and global styles.
@@ -46,6 +79,16 @@ Meeting Summarizer is an offline‑first Progressive Web App (PWA) to record or 
 - `docs/`
   - `project/` — product and architecture notes.
   - `setup/` — environment and runtime setup notes.
+
+## How The Current User Flow Works
+
+1. The user records or imports media.
+2. Imported media is normalized and stored locally.
+3. The user initializes the transcription path from the UI.
+4. The transcription worker returns transcript text and segments.
+5. The app saves transcript data in IndexedDB.
+6. The app generates a summary from transcript text.
+7. The app saves the summary and exposes both items in history/export views.
 
 ## Tabs & UX Flow
 - Work tab
@@ -84,6 +127,15 @@ Meeting Summarizer is an offline‑first Progressive Web App (PWA) to record or 
   - `public/sw.js` caches the app shell, runtime assets (stale‑while‑revalidate), and large model files (cache‑first, range‑friendly).
   - SW supports messages to clear caches/purge model cache and to query cache info.
 
+## Validation Snapshot
+
+As of 2026-03-10:
+
+- `npm run build` passes.
+- `npx tsc --noEmit` passes for active code.
+- The active application runtime does not depend on `src/sw.ts`.
+- Full Playwright validation was attempted, but the environment still blocks browser launch from the current snap setup.
+
 ## PWA & GitHub Pages Notes
 - Subpath support
   - `vite.config.ts`: `base: process.env.BASE_URL || '/'`.
@@ -99,6 +151,7 @@ Meeting Summarizer is an offline‑first Progressive Web App (PWA) to record or 
 - Feature UI is now grouped by business domain under `src/features/` instead of a single `src/ui/` directory.
 - Shared non-UI code lives under `src/lib/`, which separates reusable technical concerns from product-facing components.
 - Documentation was centralized under `docs/`; runtime `public/` folders now only contain files needed by the app at runtime.
+- `public/sw.js` is the active service worker path; `src/sw.ts` is currently inactive and excluded from active validation.
 
 ## Recent Changes (Highlights)
 - Subpath/Pages fixes: Moved `index.html` to project root; manifest start_url/scope set to `.`, all paths BASE‑aware.
@@ -110,6 +163,7 @@ Meeting Summarizer is an offline‑first Progressive Web App (PWA) to record or 
 - Progress & Toasts: Visible progress stages with percent; toast after saves.
 - Model Detection: Only available models are shown/used; added `base.q5_1` and robust fallback logic.
 - Bug Fixes: Build issue (await in useEffect) fixed; recording button resets immediately after stop; mock worker avoids OOB errors.
+- Recent stabilization: fixed broken app flow issues around transcription screen behavior, transcript segment propagation, storage ordering, and active TypeScript validation.
 
 ## Build & Run
 - Dev
@@ -126,10 +180,8 @@ Meeting Summarizer is an offline‑first Progressive Web App (PWA) to record or 
 - Whisper WASM: The worker is currently a mock; integrate real whisper.cpp WASM (load `.wasm` and `.bin`, allocate memory, call real APIs).
 - Icons/Screenshots: Replace placeholder icons under `public/icons/` for the best install experience.
 - Accessibility: Add keyboard navigation for tabs (arrow keys), focus states, and enhanced ARIA.
+- Validation: Re-run complete browser validation when Playwright can launch a browser normally in the execution environment.
 - Convenience
   - “Rescan models” in Settings to detect new model files without reload.
   - “Cancel transcription” while processing (worker can honor a cancel flag).
   - Add ETA estimates using `estimateTranscriptionTime()`.
-
----
-If you’d like, I can add a concise README section pointing to this document, or export this overview as a downloadable TXT/MD from inside the app.

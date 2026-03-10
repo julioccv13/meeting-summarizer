@@ -2,7 +2,8 @@
 
 ## Project
 
-- `project/overview.md`: current product and codebase overview.
+- `project/overview.md`: complete overview of product, architecture, structure, and technical behavior.
+- `project/status.md`: explicit project status, what is done, what is missing, and where work stands now.
 
 ## Setup
 
