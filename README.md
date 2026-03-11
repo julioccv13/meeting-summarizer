@@ -67,9 +67,9 @@ Build for the project site with:
 PATH=/home/julio/.local/bin:$PATH BASE_URL="/meeting-summarizer/" npm run build
 ```
 
-Expected URL:
+Live URL:
 
-`https://<your-username>.github.io/meeting-summarizer/`
+`https://julioccv13.github.io/meeting-summarizer/`
 
 ## Docs
 
